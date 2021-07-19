@@ -1,16 +1,12 @@
 ﻿using Notebook.Infrastructure.Data;
-using Notebook.SharedKernel.Interfaces;
 using Notebook.WebApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
 using System;
-using System.IO;
 using System.Linq;
-using System.Net.Mail;
 
 namespace Notebook.FunctionalTests.WebApi.Helpers
 {
@@ -34,25 +30,21 @@ namespace Notebook.FunctionalTests.WebApi.Helpers
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
-            {
-                ServiceDescriptor descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<EfCoreDbContext>));
-
-                if (descriptor != null)
+            builder
+                .UseSetting("https_port", "443")
+                .ConfigureServices(services =>
                 {
-                    services.Remove(descriptor);
-                }
+                    ServiceDescriptor descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<EfCoreDbContext>));
 
-                string inMemoryCollectionName = Guid.NewGuid().ToString();
+                    if (descriptor != null)
+                    {
+                        services.Remove(descriptor);
+                    }
 
-                services.AddDbContext<EfCoreDbContext>(options => options.UseInMemoryDatabase(inMemoryCollectionName));
+                    string inMemoryCollectionName = Guid.NewGuid().ToString();
 
-                services.AddTransient(services => new SmtpClient
-                {
-                    DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
-                    PickupDirectoryLocation = Path.Combine(Path.GetTempPath(), GetType().FullName)
+                    services.AddDbContext<EfCoreDbContext>(options => options.UseInMemoryDatabase(inMemoryCollectionName));
                 });
-            });
         }
     }
 }

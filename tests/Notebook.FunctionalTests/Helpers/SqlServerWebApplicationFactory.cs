@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.IO;
-using System.Net.Mail;
 
 namespace Notebook.FunctionalTests.WebApi.Helpers
 {
@@ -29,14 +27,7 @@ namespace Notebook.FunctionalTests.WebApi.Helpers
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
-            {
-                services.AddTransient(services => new SmtpClient
-                {
-                    DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
-                    PickupDirectoryLocation = Path.Combine(Path.GetTempPath(), GetType().FullName)
-                });
-            });
+            builder.UseSetting("https_port", "443");
         }
     }
 }

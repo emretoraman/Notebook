@@ -1,6 +1,4 @@
 ﻿using Notebook.FunctionalTests.WebApi.Helpers;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -13,10 +11,7 @@ namespace Notebook.FunctionalTests.WebApi
 
         public StartupTests(SqlServerWebApplicationFactory factory)
         {
-            _client = factory.CreateClient(new WebApplicationFactoryClientOptions()
-            {
-                AllowAutoRedirect = false
-            });
+            _client = factory.CreateClient();
         }
 
         [Fact]
@@ -24,12 +19,8 @@ namespace Notebook.FunctionalTests.WebApi
         {
             HttpResponseMessage response = await _client.GetAsync("");
 
-            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-            Assert.Equal("/swagger/index.html", response.Headers.Location.ToString());
-
-            response = await _client.GetAsync(response.Headers.Location);
-
             Assert.True(response.IsSuccessStatusCode);
+            Assert.Equal("/swagger/index.html", response.RequestMessage.RequestUri.AbsolutePath);
         }
     }
 }

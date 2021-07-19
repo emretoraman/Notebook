@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Net.Http;
+using Serilog;
 
 namespace Notebook.WebApi
 {
@@ -38,6 +39,9 @@ namespace Notebook.WebApi
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseSerilogRequestLogging();
+			app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
