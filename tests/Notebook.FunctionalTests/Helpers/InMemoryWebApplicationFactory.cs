@@ -30,21 +30,20 @@ namespace Notebook.FunctionalTests.WebApi.Helpers
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder
-                .UseSetting("https_port", "443")
-                .ConfigureServices(services =>
+            builder.UseSetting("https_port", "443");
+            builder.ConfigureServices(services =>
+            {
+                ServiceDescriptor descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<EfCoreDbContext>));
+
+                if (descriptor != null)
                 {
-                    ServiceDescriptor descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<EfCoreDbContext>));
+                    services.Remove(descriptor);
+                }
 
-                    if (descriptor != null)
-                    {
-                        services.Remove(descriptor);
-                    }
+                string inMemoryCollectionName = Guid.NewGuid().ToString();
 
-                    string inMemoryCollectionName = Guid.NewGuid().ToString();
-
-                    services.AddDbContext<EfCoreDbContext>(options => options.UseInMemoryDatabase(inMemoryCollectionName));
-                });
+                services.AddDbContext<EfCoreDbContext>(options => options.UseInMemoryDatabase(inMemoryCollectionName));
+            });
         }
     }
 }
